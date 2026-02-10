@@ -8,7 +8,21 @@ import json
 # Add parent directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-BASE_URL = "http://localhost:8000/api"
+# Load env vars if dotenv is available, otherwise rely on system env or defaults but prefer env
+try:
+    from dotenv import load_dotenv
+    load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env.development'))
+except ImportError:
+    pass
+
+# Configuration from ENV
+BACKEND_HOST = os.getenv("BACKEND", "localhost:8003")
+# Ensure protocol is present
+if not BACKEND_HOST.startswith("http"):
+    BASE_URL = f"http://{BACKEND_HOST}/api"
+else:
+    BASE_URL = f"{BACKEND_HOST}/api"
+
 TEST_RESULTS_DIR = "test_results"
 SAMPLE_FILE = os.path.join("recordings", "samples", "mcl2audio_optimized.flac")
 
@@ -18,13 +32,13 @@ if not os.path.exists(TEST_RESULTS_DIR):
 async def login(client):
     """Logs in and returns the access token."""
     print("🔹 Logging in...")
-    import random
-    rand_suffix = random.randint(10000, 99999)
-    email = f"media_{rand_suffix}@test.com"
-    username = f"media_user_{rand_suffix}"
-    password = "password123"
-
-    # Register
+    
+    # Credentials from ENV
+    email = os.getenv("stable_test_email", "testuser_verify@example.com")
+    username = os.getenv("stable_test_username", "testuser_verify")
+    password = os.getenv("stable_test_password", "securepassword123")
+    
+    # Register (ignore error if exists)
     try:
         await client.post(f"{BASE_URL}/auth/register", json={
             "username": username,

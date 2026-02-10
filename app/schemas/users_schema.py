@@ -21,11 +21,14 @@ class UserCreate(UserBase):
     password: str
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    username: str # Can be email or username
     password: str
 
 class Token(BaseModel):
     access_token: str
     token_type: str
     refresh_token: str
+
+class AuthResponse(Token):
+    user: UserOut
 

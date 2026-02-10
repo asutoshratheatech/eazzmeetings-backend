@@ -2,16 +2,19 @@
 Router for audio recordings, handling streaming and upload endpoints.
 """
 import logging
+from typing import List
 
 from fastapi import APIRouter, WebSocket, UploadFile, File, Form, HTTPException, Depends
 
-from app.controllers.recordings_ctrl import (
+from app.controllers import (
     handle_websocket_recording,
     stream_audio_chunk as ctrl_stream_audio_chunk,
-    upload_audio_file as ctrl_upload_audio_file
+    upload_audio_file as ctrl_upload_audio_file,
+    get_recordings,
+    get_recording_stats
 )
 from app.security import get_current_user
-from app.schemas.common_schema import UserJWT
+from app.schemas import UserJWT, RecordingOut, RecordingStats
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -70,3 +73,25 @@ async def upload_audio_file_endpoint(
     except Exception as e:
         logger.error("Error uploading file: %s", e)
         raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+
+@router.get("/recordings", response_model=List[RecordingOut])
+async def list_recordings(
+    skip: int = 0,
+    limit: int = 5,
+    current_user: UserJWT = Depends(get_current_user)
+):
+    """
+    Get recent recordings/meetings for the dashboard.
+    """
+    return await get_recordings(current_user, skip, limit)
+
+@router.get("/recordings/stats", response_model=RecordingStats)
+async def get_stats(
+    current_user: UserJWT = Depends(get_current_user)
+):
+    """
+    Get dashboard statistics.
+    """
+    return await get_recording_stats(current_user)

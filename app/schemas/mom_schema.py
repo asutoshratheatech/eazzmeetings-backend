@@ -1,6 +1,13 @@
-from typing import List, Optional, Literal
-from datetime import datetime, date
-from pydantic import BaseModel, Field
+from typing import List, Optional
+from pydantic import BaseModel, Field, HttpUrl
+
+class GenerateMoMRequest(BaseModel):
+    transcription: str
+    meeting_link: HttpUrl
+    audio_url: HttpUrl
+    meeting_date: str
+    meeting_time: str
+    meeting_duration: str
 
 class Attendee(BaseModel):
     name: str=Field(...,description='Name of the attendee')
@@ -44,7 +51,7 @@ class Agendas(BaseModel):
         default_factory=list, 
         description="The core agendas of the meeting. Break down the transcript into distinct agendas. Each agendas must have its own entry in this list."
     )
-# 1. Decisions Schema
+
 class Decision(BaseModel):
     """
     A specific conclusion or ruling agreed upon during the meeting.
@@ -74,7 +81,6 @@ class Decisions(BaseModel):
         default_factory=list,
         description="Extract all final decisions. Ignore tentative suggestions or items tabled for later."
     )
-
 
 class ActionItem(BaseModel):
     """
@@ -138,15 +144,15 @@ class TopicSummary(BaseModel):
     """
     related_topic_title: str = Field(
         ...,
-        description="This must match one of the 'topic_titles' from the Agenda list exactly. It links this summary to the specific agenda item."
+    description="This must match one of the 'topic_titles' from the Agenda list exactly. It links this summary to the specific agenda item."
     )
     description: str = Field(
         ...,
-        description="A comprehensive paragraph summarizing the discussion for this specific topic. Include the main challenges discussed, arguments made, and the general sentiment."
+    description="A comprehensive paragraph summarizing the discussion for this specific topic. Include the main challenges discussed, arguments made, and the general sentiment."
     )
     key_takeaways: List[str] = Field(
         default_factory=list,
-        description="A list of 3-5 bullet points highlighting the most critical aspects of this specific discussion."
+    description="A list of 3-5 bullet points highlighting the most critical aspects of this specific discussion."
     )
 
 class TopicSummaries(BaseModel):
@@ -171,12 +177,11 @@ class GeneralSummary(BaseModel):
         description="Describe the overall tone of the meeting. Examples: 'Productive and optimistic', 'Tense and debate-heavy', 'Informational and low-energy'."
     )
 
-class Meeting(BaseModel):
+class GeneralSummaries(BaseModel):
     """
-    The root model containing all extraction categories.
+    A collection of high-level executive summaries of the entire meeting.
     """
-    general_summary: GeneralSummary
-    topic_summaries: TopicSummaries
-    decisions: Decisions
-    action_items: ActionItems
-    facts: Facts
+    general_summaries: List[GeneralSummary] = Field(
+        default_factory=list,
+        description="Extract all high-level executive summaries."
+    )

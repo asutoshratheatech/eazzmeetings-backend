@@ -206,3 +206,42 @@ async def upload_audio_file(file: UploadFile, current_user: UserJWT) -> dict:
         "recording_id": str(recording_doc.id)
     }
 
+
+async def get_recordings(current_user: UserJWT, skip: int = 0, limit: int = 5) -> list[RecordingCollection]:
+    """
+    Fetches the most recent recordings for the user's organization.
+    """
+    org_id = current_user.get("org_id")
+    user_id = current_user.get("sub")
+    
+    # Filter by Org ID if available, else User ID
+    query = {}
+    if org_id:
+        query["org_id"] = org_id
+    else:
+        query["created_by"] = user_id
+
+    # Find, Sort by Date Descending, Skip, Limit
+    recordings = await RecordingCollection.find(query).sort("-creation_date").skip(skip).limit(limit).to_list()
+    return recordings
+
+async def get_recording_stats(current_user: UserJWT) -> dict:
+    """
+    Fetches aggregated stats for the dashboard.
+    """
+    org_id = current_user.get("org_id")
+    user_id = current_user.get("sub")
+
+    query = {}
+    if org_id:
+        query["org_id"] = org_id
+    else:
+        query["created_by"] = user_id
+    
+    total_meetings = await RecordingCollection.find(query).count()
+    
+    return {
+        "total_meetings": total_meetings,
+        "open_tasks": 0, # Placeholder for Tasks integration
+        "intelligence_count": 0 # Placeholder for Intelligence integration
+    }

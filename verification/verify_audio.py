@@ -11,7 +11,19 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 
-BASE_URL = "http://localhost:8000/api"
+# Load env vars if dotenv is available
+try:
+    from dotenv import load_dotenv
+    load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env.development'))
+except ImportError:
+    pass
+
+# Configuration from ENV
+BACKEND_HOST = os.getenv("BACKEND", "localhost:8003")
+if not BACKEND_HOST.startswith("http"):
+    BASE_URL = f"http://{BACKEND_HOST}/api"
+else:
+    BASE_URL = f"{BACKEND_HOST}/api"
 
 def generate_sine_wave(filename, duration=1.0, freq=440.0, rate=44100):
     """Generates a mono WAV file with a sine wave."""
@@ -30,7 +42,11 @@ def generate_sine_wave(filename, duration=1.0, freq=440.0, rate=44100):
 async def login(client):
     """Logs in and returns the access token."""
     print("🔹 Logging in...")
-    import random
+    # Credentials from ENV
+    email = os.getenv("stable_test_email", "audio_test@example.com")
+    username = os.getenv("stable_test_username", "audio_user")
+    
+    # append random to avoid conflict if reused
     rand_suffix = random.randint(10000, 99999)
     email = f"audio_{rand_suffix}@test.com"
     username = f"audio_user_{rand_suffix}"
@@ -94,9 +110,9 @@ async def verify_upload(client, token):
             
             # Verify DB ID returned
             if "recording_id" in data:
-                 print(f"✅ DB Record Created: {data['recording_id']}")
+                print(f"✅ DB Record Created: {data['recording_id']}")
             else:
-                 print("❌ No recording_id in response")
+                print("❌ No recording_id in response")
 
         else:
             print("❌ Output file not found")

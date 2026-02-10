@@ -8,13 +8,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
+# Exception Handling
+from app.utils.exception_handler import global_exception_handler
 
 from app.env_settings import env
-from app.env_settings import env
 from app.routers import router as main_router
-from app.models.database.users_collection import UserCollection, UserSecretsCollection
-from app.models.database.identities_collection import IdentityCollection, IdentityEmbeddingCollection
-from app.models.database.recordings_collection import RecordingCollection
+from app.models.database import (
+    UserCollection,
+    UserSecretsCollection,
+    IdentityCollection,
+    IdentityEmbeddingCollection,
+    RecordingCollection,
+    MeetingCollection
+)
 
 
 @asynccontextmanager
@@ -30,7 +36,8 @@ async def lifespan(_app: FastAPI):
         UserSecretsCollection,
         IdentityCollection,
         IdentityEmbeddingCollection,
-        RecordingCollection
+        RecordingCollection,
+        MeetingCollection
     ])
     print("✅ Startup: Connected to Database")
 
@@ -61,6 +68,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+app.add_exception_handler(Exception, global_exception_handler)
 
 # Include main router
 app.include_router(main_router, prefix="/api")

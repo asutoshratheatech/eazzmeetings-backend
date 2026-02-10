@@ -46,3 +46,7 @@ app-example
 # generated native folders
 /ios
 /android
+
+# Media and Test Results
+recordings/
+test_results/

@@ -79,7 +79,8 @@ async def register_ctrl(user_in: UserCreate) -> Token:
     return {
         "access_token": access_token,
         "token_type": "bearer",
-        "refresh_token": refresh_token
+        "refresh_token": refresh_token,
+        "user": user
     }
 
 async def login_ctrl(user_in: UserLogin) -> Token:
@@ -90,10 +91,10 @@ async def login_ctrl(user_in: UserLogin) -> Token:
     3. Generates and returns JWT tokens.
     """
     # Find user by email (primary) or username
-    user = await UserCollection.find_one(UserCollection.email == user_in.email)
+    user = await UserCollection.find_one(UserCollection.email == user_in.username)
     if not user:
         # Fallback to username check
-        user = await UserCollection.find_one(UserCollection.username == user_in.email)
+        user = await UserCollection.find_one(UserCollection.username == user_in.username)
 
     if not user:
         raise HTTPException(
@@ -135,6 +136,7 @@ async def login_ctrl(user_in: UserLogin) -> Token:
     return {
         "access_token": access_token,
         "token_type": "bearer",
-        "refresh_token": refresh_token
+        "refresh_token": refresh_token,
+        "user": user
     }
 

@@ -29,3 +29,4 @@ class StorageService:
         async with aiofiles.open(file_path, 'ab') as f:
             await f.write(data)
         return file_path
+

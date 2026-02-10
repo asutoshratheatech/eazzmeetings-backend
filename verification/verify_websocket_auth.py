@@ -8,8 +8,24 @@ import os
 # Add parent directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-BASE_URL = "http://localhost:8000/api"
-WS_URL = "ws://localhost:8000/api/ws/record"
+# Load env vars
+try:
+    from dotenv import load_dotenv
+    load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env.development'))
+except ImportError:
+    pass
+
+BACKEND_HOST = os.getenv("BACKEND", "localhost:8003")
+# Strip http/https for WS construction if needed, or just parse
+if BACKEND_HOST.startswith("http://"):
+    HOST_ONLY = BACKEND_HOST.replace("http://", "")
+elif BACKEND_HOST.startswith("https://"):
+    HOST_ONLY = BACKEND_HOST.replace("https://", "")
+else:
+    HOST_ONLY = BACKEND_HOST
+
+BASE_URL = f"http://{HOST_ONLY}/api"
+WS_URL = f"ws://{HOST_ONLY}/api/ws/record"
 
 async def get_token():
     async with httpx.AsyncClient(base_url=BASE_URL) as client:

@@ -13,28 +13,21 @@ async def transcribe_audio_ctrl(file: UploadFile, model: ModelChoices = ModelCho
     """
     Controller logic to transcribe an audio file using Groq/Whisper.
     """
-    try:
-        # Read the file content
-        file_content = await file.read()
-        if not file_content:
-            raise HTTPException(status_code=400, detail="Empty file")
+    # Read the file content
+    file_content = await file.read()
+    if not file_content:
+        raise HTTPException(status_code=400, detail="Empty file")
 
-        # Call the service
-        # Note: The service expects bytes and returns a dict
-        filename = file.filename or "audio.wav"
-        logger.info(f"Transcribing {filename} with model: {model} (type: {type(model)})")
-        result_dict = transcription_service.whisper_transcribe(file_content, filename, model.value)
+    # Call the service
+    # Note: The service expects bytes and returns a dict
+    filename = file.filename or "audio.wav"
+    logger.info(f"Transcribing {filename} with model: {model} (type: {type(model)})")
+    result_dict = transcription_service.whisper_transcribe(file_content, filename, model.value)
 
-        # Map to schema
-        return TranscribeResponse(
-            text=result_dict.get("text", ""),
-            segments=result_dict.get("segments", []),
-            language=result_dict.get("language"),
-            duration=result_dict.get("duration")
-        )
-
-    except Exception as e:
-        logger.error(f"Error transcribing audio: {e}")
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Transcription failed: {str(e)}")
+    # Map to schema
+    return TranscribeResponse(
+        text=result_dict.get("text", ""),
+        segments=result_dict.get("segments", []),
+        language=result_dict.get("language"),
+        duration=result_dict.get("duration")
+    )
