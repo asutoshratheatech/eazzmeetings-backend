@@ -16,7 +16,7 @@ from app.schemas.common_schema import UserJWT
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 # OAuth2 Scheme
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
