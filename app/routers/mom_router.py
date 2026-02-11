@@ -27,6 +27,9 @@ async def generate_mom_endpoint(
     
     oid = PydanticObjectId(org_id) if org_id else None
 
+    user_id = current_user.get("sub")
+    uid = PydanticObjectId(user_id) if user_id else None
+
     return await MoMController.generate_mom_from_text(
         transcription=request.transcription,
         meeting_link=str(request.meeting_link),
@@ -34,7 +37,8 @@ async def generate_mom_endpoint(
         meeting_date=request.meeting_date,
         meeting_time=request.meeting_time,
         meeting_duration=request.meeting_duration,
-        org_id=oid
+        org_id=oid,
+        created_by=uid
     )
 
 @router.post("/mom/generate-from-audio", response_model=MeetingCollection)
@@ -51,13 +55,17 @@ async def generate_mom_from_audio_endpoint(
     """
     org_id = current_user.get("org_id")
     oid = PydanticObjectId(org_id) if org_id else None
+    
+    user_id = current_user.get("sub")
+    uid = PydanticObjectId(user_id) if user_id else None
 
     return await MoMController.generate_mom_from_audio(
         file=file,
         meeting_link=meeting_link,
         meeting_date=meeting_date,
         meeting_time=meeting_time,
-        org_id=oid
+        org_id=oid,
+        created_by=uid
     )
 
 @router.post("/mom/generate-from-recording/{recording_id}", response_model=MeetingCollection)

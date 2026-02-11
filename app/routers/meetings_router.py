@@ -19,7 +19,7 @@ async def list_meetings(
     """
     List all generated meetings (MoMs).
     """
-    return await MeetingsController.get_all_meetings(skip, limit)
+    return await MeetingsController.get_all_meetings(current_user, skip, limit)
 
 @router.get("/meetings/{meeting_id}", response_model=MeetingCollection)
 async def get_meeting(

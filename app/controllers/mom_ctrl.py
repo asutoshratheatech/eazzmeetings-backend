@@ -29,7 +29,8 @@ class MoMController:
         meeting_time: str,
         meeting_duration: str,
         org_id: Optional[PydanticObjectId] = None,
-        recording_id: Optional[PydanticObjectId] = None
+        recording_id: Optional[PydanticObjectId] = None,
+        created_by: Optional[PydanticObjectId] = None
     ) -> MeetingCollection:
         """
         Controller to generate MoM from raw text and metadata.
@@ -63,7 +64,8 @@ class MoMController:
                 "facts": result_state["facts"],
                 "attendees": result_state["attendees"],
                 "org_id": org_id,
-                "recording_id": recording_id
+                "recording_id": recording_id,
+                "created_by": created_by
             }
             
             # Validate and Create Document
@@ -85,7 +87,8 @@ class MoMController:
         meeting_link: str,
         meeting_date: str,
         meeting_time: str,
-        org_id: Optional[PydanticObjectId] = None
+        org_id: Optional[PydanticObjectId] = None,
+        created_by: Optional[PydanticObjectId] = None
     ) -> MeetingCollection:
         """
         Controller to generate MoM from audio file.
@@ -140,7 +143,8 @@ class MoMController:
                 meeting_date=meeting_date,
                 meeting_time=meeting_time,
                 meeting_duration=meeting_duration,
-                org_id=org_id
+                org_id=org_id,
+                created_by=created_by
             )
 
         except Exception as e:
@@ -221,7 +225,8 @@ class MoMController:
                 meeting_time=meeting_time,
                 meeting_duration=meeting_duration,
                 org_id=recording.org_id if recording.org_id else org_id,
-                recording_id=recording.id
+                recording_id=recording.id,
+                created_by=recording.created_by
             )
 
         except Exception as e:
